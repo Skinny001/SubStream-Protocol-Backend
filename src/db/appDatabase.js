@@ -7,6 +7,7 @@ const Database = require('better-sqlite3');
  * SQLite-backed application database wrapper.
  */
 class AppDatabase {
+  // ...existing code...
   /**
    * @param {string} filename SQLite filename or `:memory:`.
    */
@@ -83,7 +84,6 @@ class AppDatabase {
 
       CREATE INDEX IF NOT EXISTS idx_creator_audit_logs_creator_timestamp
         ON creator_audit_logs (creator_id, timestamp DESC);
-      ON creator_audit_logs (creator_id, timestamp DESC);
 
       CREATE TABLE IF NOT EXISTS comments (
         id TEXT PRIMARY KEY,
@@ -429,8 +429,10 @@ class AppDatabase {
         'SELECT creator_id AS creatorId, wallet_address AS walletAddress, active, subscribed_at AS subscribedAt, unsubscribed_at AS unsubscribedAt FROM subscriptions WHERE creator_id = ? AND wallet_address = ?',
       )
       .get(creatorId, walletAddress);
+    return row || null;
+  }
+  /**
    * Create a new comment.
-   *
    * @param {{postId: string, userAddress: string, creatorId: string, content: string}} comment Comment data.
    * @returns {object}
    */
@@ -554,8 +556,10 @@ class AppDatabase {
       .prepare('SELECT COUNT(1) AS ct FROM subscriptions WHERE creator_id = ? AND active = 1')
       .get(creatorId);
     return (row && Number(row.ct)) || 0;
+  }
+
+  /**
    * Get comments by post ID.
-   *
    * @param {string} postId Post identifier.
    * @returns {object[]}
    */
@@ -567,14 +571,13 @@ class AppDatabase {
         FROM comments
         WHERE post_id = ?
         ORDER BY created_at DESC
-      `,
+        `
       )
       .all(postId);
   }
 
   /**
    * Update a comment.
-   *
    * @param {{commentId: string, content: string}} input Update payload.
    * @returns {object}
    */
@@ -586,16 +589,14 @@ class AppDatabase {
         UPDATE comments
         SET content = ?, updated_at = ?
         WHERE id = ?
-      `,
+        `
       )
       .run(input.content, now, input.commentId);
-
     return this.getCommentById(input.commentId);
   }
 
   /**
    * Delete a comment.
-   *
    * @param {string} commentId Comment identifier.
    * @returns {boolean}
    */
@@ -604,10 +605,9 @@ class AppDatabase {
       .prepare(
         `
         DELETE FROM comments WHERE id = ?
-      `,
+        `
       )
       .run(commentId);
-
     return result.changes > 0;
   }
 }
