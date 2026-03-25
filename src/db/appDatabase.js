@@ -426,7 +426,7 @@ class AppDatabase {
   getSubscription(creatorId, walletAddress) {
     const row = this.db
       .prepare(
-        'SELECT creator_id AS creatorId, wallet_address AS walletAddress, active, subscribed_at AS subscribedAt, unsubscribed_at AS unsubscribedAt FROM subscriptions WHERE creator_id = ? AND wallet_address = ?',
+        'SELECT creator_id AS creatorId, wallet_address AS walletAddress, active, subscribed_at AS subscribedAt, unsubscribed_at AS unsubscribedAt FROM subscriptions WHERE creator_id = ? AND wallet_address = ?'
       )
       .get(creatorId, walletAddress);
     return row || null;
@@ -444,16 +444,14 @@ class AppDatabase {
         `
         INSERT INTO comments (id, post_id, user_address, creator_id, content, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-      `,
+        `
       )
       .run(id, comment.postId, comment.userAddress, comment.creatorId, comment.content, now, now);
-
     return this.getCommentById(id);
   }
 
   /**
    * Get a comment by ID.
-   *
    * @param {string} commentId Comment identifier.
    * @returns {object|null}
    */
@@ -464,10 +462,9 @@ class AppDatabase {
         SELECT id, post_id AS postId, user_address AS userAddress, creator_id AS creatorId, content, created_at AS createdAt, updated_at AS updatedAt
         FROM comments
         WHERE id = ?
-      `,
+        `
       )
       .get(commentId);
-
     return row || null;
   }
 
