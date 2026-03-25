@@ -429,9 +429,50 @@ class AppDatabase {
         'SELECT creator_id AS creatorId, wallet_address AS walletAddress, active, subscribed_at AS subscribedAt, unsubscribed_at AS unsubscribedAt FROM subscriptions WHERE creator_id = ? AND wallet_address = ?'
       )
       .get(creatorId, walletAddress);
+<<<<<<< HEAD
+=======
+   * Create a new comment.
+   *
+   * @param {{postId: string, userAddress: string, creatorId: string, content: string}} comment Comment data.
+   * @returns {object}
+   */
+  createComment(comment) {
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
+    this.db
+      .prepare(
+        `
+        INSERT INTO comments (id, post_id, user_address, creator_id, content, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `,
+      )
+      .run(id, comment.postId, comment.userAddress, comment.creatorId, comment.content, now, now);
+
+    return this.getCommentById(id);
+  }
+
+  /**
+   * Get a comment by ID.
+   *
+   * @param {string} commentId Comment identifier.
+   * @returns {object|null}
+   */
+  getCommentById(commentId) {
+    const row = this.db
+      .prepare(
+        `
+        SELECT id, post_id AS postId, user_address AS userAddress, creator_id AS creatorId, content, created_at AS createdAt, updated_at AS updatedAt
+        FROM comments
+        WHERE id = ?
+      `,
+      )
+      .get(commentId);
+
+>>>>>>> origin/main
     return row || null;
   }
   /**
+<<<<<<< HEAD
    * Create a new comment.
    * @param {{postId: string, userAddress: string, creatorId: string, content: string}} comment Comment data.
    * @returns {object}
@@ -472,6 +513,9 @@ class AppDatabase {
    * Create or activate a subscription for a wallet.
    * Returns { changed: boolean, count: number }.
    *
+=======
+   * Create or activate a subscription for a wallet. Returns { changed: boolean, count: number }
+>>>>>>> origin/main
    * @param {string} creatorId
    * @param {string} walletAddress
    */
@@ -553,10 +597,15 @@ class AppDatabase {
       .prepare('SELECT COUNT(1) AS ct FROM subscriptions WHERE creator_id = ? AND active = 1')
       .get(creatorId);
     return (row && Number(row.ct)) || 0;
+<<<<<<< HEAD
   }
 
   /**
    * Get comments by post ID.
+=======
+   * Get comments by post ID.
+   *
+>>>>>>> origin/main
    * @param {string} postId Post identifier.
    * @returns {object[]}
    */
@@ -568,13 +617,21 @@ class AppDatabase {
         FROM comments
         WHERE post_id = ?
         ORDER BY created_at DESC
+<<<<<<< HEAD
         `
+=======
+      `,
+>>>>>>> origin/main
       )
       .all(postId);
   }
 
   /**
    * Update a comment.
+<<<<<<< HEAD
+=======
+   *
+>>>>>>> origin/main
    * @param {{commentId: string, content: string}} input Update payload.
    * @returns {object}
    */
@@ -586,14 +643,25 @@ class AppDatabase {
         UPDATE comments
         SET content = ?, updated_at = ?
         WHERE id = ?
+<<<<<<< HEAD
         `
       )
       .run(input.content, now, input.commentId);
+=======
+      `,
+      )
+      .run(input.content, now, input.commentId);
+
+>>>>>>> origin/main
     return this.getCommentById(input.commentId);
   }
 
   /**
    * Delete a comment.
+<<<<<<< HEAD
+=======
+   *
+>>>>>>> origin/main
    * @param {string} commentId Comment identifier.
    * @returns {boolean}
    */
@@ -602,9 +670,16 @@ class AppDatabase {
       .prepare(
         `
         DELETE FROM comments WHERE id = ?
+<<<<<<< HEAD
         `
       )
       .run(commentId);
+=======
+      `,
+      )
+      .run(commentId);
+
+>>>>>>> origin/main
     return result.changes > 0;
   }
 }

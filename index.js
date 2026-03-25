@@ -11,6 +11,7 @@ const { CreatorActionService } = require('./src/services/creatorActionService');
 const { CreatorAuditLogService } = require('./src/services/creatorAuditLogService');
 const { CreatorAuthService } = require('./src/services/creatorAuthService');
 const { SorobanSubscriptionVerifier } = require('./src/services/sorobanSubscriptionVerifier');
+const { SubscriptionService } = require('./src/services/subscriptionService');
 const { buildAuditLogCsv } = require('./src/utils/export/auditLogCsv');
 const { buildAuditLogPdf } = require('./src/utils/export/auditLogPdf');
 const { getRequestIp } = require('./src/utils/requestIp');
@@ -32,9 +33,16 @@ function createApp(dependencies = {}) {
   const subscriptionVerifier =
     dependencies.subscriptionVerifier || new SorobanSubscriptionVerifier(config);
   const tokenService = dependencies.tokenService || new CdnTokenService(config);
+  const subscriptionService =
+    dependencies.subscriptionService || new SubscriptionService({ database, auditLogService });
+
+  // expose the service on the express app so external routers can access it
+  app.set('subscriptionService', subscriptionService);
 
   app.use(cors());
   app.use(express.json());
+  // Subscription events webhook
+  app.use('/api/subscription', require('./routes/subscription'));
 
   app.get('/', (req, res) => {
     res.json({
